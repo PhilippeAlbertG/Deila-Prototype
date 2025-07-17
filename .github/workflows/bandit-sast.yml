@@ -1,0 +1,37 @@
+# .github/workflows/bandit-sast.yml
+name: Bandit SAST Scan
+
+on:
+  push:
+    branches:
+      - main # Or your primary development branch
+  pull_request:
+    branches:
+      - main # Or your primary development branch
+
+jobs:
+  bandit_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Action to check out your repository code
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x' # Use a compatible Python version
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit Scan
+        # -r . scans the current directory recursively
+        # -f json -o bandit-report.json generates a JSON report
+        # You can change -f to html for an HTML report if preferred
+        run: bandit -r . -f json -o bandit-report.json || true # `|| true` to prevent job failure on findings
+
+      - name: Upload Bandit Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-sast-report
+          path: bandit-report.json # Path to the generated report
