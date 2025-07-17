@@ -1,0 +1,35 @@
+# .github/workflows/copilot-code-review.yml
+name: AI Code Review (Copilot-assisted)
+
+on:
+  pull_request:
+    types: [opened, synchronize] # Trigger on new PRs and updates
+
+jobs:
+  ai_review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # Required for the action to post comments on the PR
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important for diff analysis
+
+      - name: Run AI Code Reviewer
+        # This is an example of a common AI code review action.
+        # You might choose a different one from the GitHub Marketplace.
+        uses: fxchen/code-review@latest # Or another chosen AI review action
+        with:
+          # Your OpenAI API Key stored as a GitHub Secret
+          openai-key: ${{ secrets.OPENAI_API_KEY }}
+          # The GitHub token is usually automatically available
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: Specify the AI model (e.g., gpt-4o, gpt-4)
+          model: 'gpt-4o'
+          # Optional: Exclude specific files/paths from review
+          exclude-files: '**.md, **/tests/**'
+          # Optional: Persona for the AI reviewer (e.g., 'developer', 'kent_beck')
+          persona: 'developer'
