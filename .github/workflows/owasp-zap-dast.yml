@@ -1,0 +1,31 @@
+# .github/workflows/owasp-zap-dast.yml
+name: OWASP ZAP DAST Scan
+
+on:
+  # Trigger DAST nightly, or manually via workflow_dispatch
+  schedule:
+    - cron: '0 1 * * *' # Runs every day at 01:00 UTC
+  workflow_dispatch: # Allows manual triggering from GitHub Actions UI
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0 # Use the latest stable version
+        with:
+          target: 'https://your-deila-staging.azurewebsites.net' # Replace with your deployed Anvil app URL
+          # You can add a rules file to ignore false positives:
+          # rules_file_name: '.zap/rules.txt'
+          # Optional: Generate a more detailed HTML report
+          # cmd_options: '-r zap_report.html'
+
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-zap-dast-report
+          path: . # ZAP actions typically output reports to the root of the workspace
+          # If using cmd_options: '-r zap_report.html', then path: zap_report.html
